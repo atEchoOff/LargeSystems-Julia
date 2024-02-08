@@ -35,19 +35,6 @@ function solve(tmocSolver::TMOCSolver, θ, K)
     _y = ShiftedList(0, [ShiftedList(1, ["y$i$j" for j in range(1, tmocSolver.ny)]) for i in range(0, K)])
     _λ = ShiftedList(1, [ShiftedList(1, ["λ$i$j" for j in range(1, tmocSolver.ny)]) for i in range(1, K)])
     _u = ShiftedList(0, [ShiftedList(1, ["u$i$j" for j in range(1, tmocSolver.nu)]) for i in range(0, K)])
-    
-    all_vars = String[]
-    for y in _y.list
-        all_vars = [all_vars; y.list]
-    end
-    
-    for l in _λ.list
-        all_vars = [all_vars; l.list]
-    end
-
-    for u in _u.list
-        all_vars = [all_vars; u.list]
-    end
 
     # Shorthand
     Δlᶠ = tmocSolver.Δlᶠ
@@ -66,7 +53,7 @@ function solve(tmocSolver::TMOCSolver, θ, K)
     t = ShiftedList(0, [tmocSolver.t0 + h * i for i in range(0, K)])
     
     # Start building our system!
-    system = System(all_vars)
+    system = System(_y, _λ, _u)
 
     # Constraint from (8)
     add_constraint!(system, λ[K] - h * (1 - θ) * fᵧ' * λ[K] ==

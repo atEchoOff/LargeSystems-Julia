@@ -1,6 +1,21 @@
 using LinearAlgebra
 include("linear.jl")
 include("solution.jl")
+include("../Utils/ShiftedList.jl")
+
+# A quick utility to recursively flatten lists, helps to set variables
+function flatten(list::String)
+    return [list]
+end
+
+function flatten(list::Union{Tuple, Vector, ShiftedList})
+    ret = []
+    for elem in list
+        append!(ret, flatten(elem))
+    end
+
+    return ret
+end
 
 mutable struct System
     var_names::Vector{String}
@@ -9,7 +24,8 @@ mutable struct System
     var_idxs::Dict{String, Int}
     determined::Int
 
-    function System(names::Vector{String})
+    function System(names...)
+        names = flatten(names)
         var_idxs = Dict(zip(names, 1:length(names)))
         A = zeros(Float64, length(names), length(names))
         b = zeros(Float64, length(names))
