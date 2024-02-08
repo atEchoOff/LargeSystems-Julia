@@ -9,7 +9,6 @@ add_constraint!(system, 2x + 3y - z == 2)
 add_constraint!(system, 2x - z + y == 1)
 add_constraint!(system, x + y + z == 1)
 
-display(system.A)
 solver = SimpleSolver()
 
-println(solve(solver, system))
+println(solve(solver, system).values)

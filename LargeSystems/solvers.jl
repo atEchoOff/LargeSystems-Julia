@@ -1,5 +1,6 @@
 include("system.jl")
 include("solution.jl")
+using SparseArrays
 
 struct SimpleSolver
     sparse::Bool

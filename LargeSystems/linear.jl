@@ -1,6 +1,6 @@
 using LinearAlgebra
 
-struct Identity <: AbstractMatrix{Float64}
+struct Identity
     val::Number
     n::Int64
 
@@ -28,11 +28,11 @@ Base.:(*)(val::Number, ident::Identity) = begin
     return Identity(val * ident.val, ident.n)
 end
 
-Base.:(*)(ident::Identity, matr::AbstractMatrix) = begin
+Base.:(*)(ident::Identity, matr::Union{Identity, AbstractMatrix}) = begin
     return ident.val * matr
 end
 
-Base.:(*)(ident::Identity, matr::AbstractMatrix) = begin
+Base.:(*)(matr::Union{Identity, AbstractMatrix}, ident::Identity) = begin
     return matr * ident.val
 end
 
@@ -44,7 +44,7 @@ Base.:-(ident::Identity) = -1 * ident
 
 function V(vars...)
     if length(vars) == 1
-        return Linear(Identity(1, length(vars[0])), vars[0])
+        return Linear(Identity(1, length(vars[1])), vars[1])
     end
 
     ret = []
@@ -59,15 +59,15 @@ function V(vars...)
 end
 
 mutable struct Linear
-    left::Vector{AbstractMatrix}
+    left::Vector{Union{Identity, AbstractMatrix}}
     right::Vector{Vector{String}}
     constant::Vector{Float64}
 
-    function Linear(left::Vector{AbstractMatrix}, right::Vector{Vector{String}}, constant::Vector{Float64})
+    function Linear(left::Vector{Union{Identity, AbstractMatrix}}, right::Vector{Vector{String}}, constant::Vector{Float64})
         return new(left, right, constant)
     end
 
-    function Linear(left::AbstractMatrix, right::Vector{String})
+    function Linear(left::Union{Identity, AbstractMatrix}, right::Vector{String})
         constant = zeros(Float64, size(left, 1))
         return new([left], [right], constant)
     end
@@ -101,7 +101,7 @@ Base.:(==)(other::Number, linear::Linear) = begin
     return linear == other # Reduce to Linear == Number
 end
 
-Base.:(*)(linear::Linear, val::Union{Number, AbstractMatrix}) = begin
+Base.:(*)(linear::Linear, val::Union{Number, AbstractMatrix, Identity}) = begin
     ret = deepcopy(linear)
     for i in 1:length(linear.left)
         ret.left[i] = linear.left[i] * val
@@ -112,7 +112,7 @@ Base.:(*)(linear::Linear, val::Union{Number, AbstractMatrix}) = begin
     return ret
 end
 
-Base.:(*)(val::Union{Number, AbstractMatrix}, linear::Linear) = begin
+Base.:(*)(val::Union{Number, AbstractMatrix, Identity}, linear::Linear) = begin
     ret = deepcopy(linear)
     for i in 1:length(linear.left)
         ret.left[i] = val * linear.left[i]
@@ -156,9 +156,9 @@ end
 
 Base.:-(linear::Linear) = -1 * linear
 
-Base.:-(linear::Linear, val::Union{Linear, AbstractMatrix, Number}) = linear + (-val)
+Base.:-(linear::Linear, val::Union{Linear, AbstractMatrix, Identity, Number}) = linear + (-val)
 
-Base.:-(val::Union{AbstractMatrix, Number}, linear::Linear) = val + (-linear)
+Base.:-(val::Union{AbstractMatrix, Identity, Number}, linear::Linear) = val + (-linear)
 
 struct Equation
     linear::Linear
