@@ -7,7 +7,7 @@ include("Utils/PDEs.jl")
 f(x) = pi^2 * cos(pi * x)
 u(x) = cos(pi * x) # Our true solution
 
-system = build_poisson(30, 1, -1, f)
+system = build_1D_poisson(30, 1, -1, f)
 solver = ConjugateGradientMethodSolver(sparse=true)
 
 x, _, _ = solve(solver, system)

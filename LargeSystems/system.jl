@@ -8,7 +8,7 @@ function flatten(list::String)
     return [list]
 end
 
-function flatten(list::Union{Tuple, Vector, ShiftedList})
+function flatten(list::Union{Tuple, Vector, ShiftedList, Matrix})
     ret = []
     for elem in list
         append!(ret, flatten(elem))

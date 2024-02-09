@@ -2,13 +2,17 @@ struct ShiftedList
     # A simple list which indexes by a custom shift
     start::Int64
     list::Vector
+    hard::Bool # Do not allow negative indices if hard
 
-    function ShiftedList(start::Int64, list::Vector)
-        return new(start, list)
+    function ShiftedList(start::Int64, list::Vector; hard::Bool=false)
+        return new(start, list, hard)
     end
 end
 
 Base.:(getindex)(list::ShiftedList, idx::Int64) = begin
+    if idx - list.start < 1
+        throw(DomainError(idx, "This shifted list is hard, it cannot be accessed out of bounds"))
+    end
     return list.list[idx - list.start + 1]
 end
 

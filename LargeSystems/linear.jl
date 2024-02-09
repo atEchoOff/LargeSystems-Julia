@@ -9,6 +9,10 @@ struct Identity
     end
 end
 
+Base.:(show)(io::IO, ident::Identity) = begin
+    print(io, ident.val)
+end
+
 Base.:(size)(ident::Identity, _::Int64) = begin
     return ident.n
 end
@@ -43,10 +47,6 @@ end
 Base.:-(ident::Identity) = -1 * ident
 
 function V(vars...)
-    if length(vars) == 1
-        return Linear(Identity(1, length(vars[1])), vars[1])
-    end
-
     ret = []
     for var in vars
         if typeof(var) == String
@@ -55,7 +55,11 @@ function V(vars...)
         end
         push!(ret, Linear(Identity(1, length(var)), var))
     end
-    return ret
+    if length(ret) == 1
+        return ret[1]
+    else
+        return ret
+    end
 end
 
 mutable struct Linear
@@ -70,6 +74,17 @@ mutable struct Linear
     function Linear(left::Union{Identity, AbstractMatrix}, right::Vector{String})
         constant = zeros(Float64, size(left, 1))
         return new([left], [right], constant)
+    end
+end
+
+Base.:(show)(io::IO, linear::Linear) = begin
+    for i = 1:length(linear.left)
+        print(io, linear.left[i])
+        print(io, " * ")
+        print(io, linear.right[i])
+        if i != length(linear.left)
+            print(io, " + ")
+        end
     end
 end
 
@@ -167,4 +182,10 @@ struct Equation
     function Equation(linear::Linear, RHS::Vector{Float64})
         return new(linear, RHS)
     end
+end
+
+Base.:(show)(io::IO, equation::Equation) = begin
+    print(io, equation.linear)
+    print(io, " = ")
+    print(io, equation.RHS)
 end
