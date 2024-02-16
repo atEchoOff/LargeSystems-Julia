@@ -23,7 +23,11 @@ function build_1D_poisson(N, a, b, f)
     return system
 end
 
-function build_2D_poisson(N, boundary, f; Δf=zero, stencil=9)
+function zero_2D(x::Float64, y::Float64)
+    return 0
+end
+
+function build_2D_poisson(N, boundary, f; Δf=zero_2D, stencil=9)
     # Build the PDE Δu = f(x,y)
     # So that over ∂([0,1]²), u(x,y)=boundary(x,y)
     # Optionally pass the laplacian of f to improve convergence to O(h⁴), works only when stencil=9
@@ -36,13 +40,13 @@ function build_2D_poisson(N, boundary, f; Δf=zero, stencil=9)
 
     # Set boundary values
     for i in range(0, N + 1)
-        U[i,0] = boundary(i * h, 0)
-        U[i,N + 1] = boundary(i * h, 1)
+        U[i,0] = boundary(i * h, 0.0)
+        U[i,N + 1] = boundary(i * h, 1.0)
     end
 
     for j in range(0, N + 1)
-        U[0,j] = boundary(0, j * h)
-        U[N + 1,j] = boundary(1, j * h)
+        U[0,j] = boundary(0.0, j * h)
+        U[N + 1,j] = boundary(1.0, j * h)
     end
 
     # Add constraints

@@ -33,7 +33,7 @@ mutable struct System
     end
 end
 
-function add_constraint!(system::System, equation::Equation)
+@views function add_constraint!(system::System, equation::Equation)
     linear = equation.linear
     height = size(linear.left[1], 1)
     bottom = system.determined + height

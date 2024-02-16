@@ -1,8 +1,10 @@
+using SparseArrays
+
 struct Solution
     values::Vector
     var_idxs::Dict{String, Int}
 
-    function Solution(values::Vector, var_idxs::Dict{String, Int})
+    function Solution(values::Union{Vector, SparseVector{Float64, Int64}}, var_idxs::Dict{String, Int})
         return new(values, var_idxs)
     end
 end
