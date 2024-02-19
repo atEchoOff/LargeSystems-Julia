@@ -11,7 +11,7 @@ using LinearAlgebra
 end
 
 abstract type Metadata end # Save data per iteration to a metadata type
-# Metadata should have !save(metadata; **kwargs) to determine what to do with data at each frame
+# Metadata should have save(metadata; **kwargs) to determine what to do with data at each frame
 abstract type Solver end
 
 struct SimpleSolver <: Solver

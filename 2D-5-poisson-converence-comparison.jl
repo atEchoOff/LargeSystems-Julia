@@ -7,10 +7,12 @@ using LinearAlgebra
 f(x, y) = rand(Float64)
 
 # First, create our matrix
-system = build_2D_poisson(20, zero_2D, f, stencil=5)
+system = build_2D_poisson(32, zero_2D, f, stencil=5, spy_plot=true)
 A = system.A
 b = system.b
 N = size(b, 1)
+
+println("N = ", N)
 
 # Jacobi method. Zero tolerance for error, and go for N // 2 iterations
 jacobi = JacobiMethodSolver(tol_type=ZERO, maxit=N÷2, sparse=true)
@@ -88,11 +90,11 @@ plot!(sor_log_resids, label="SOR")
 plot!(grad_log_resids, label="Steepest Descent")
 plot!(cg_log_resids, label="CG")
 xlabel!("Iteration k")
-ylabel!("log(error)")
+ylabel!("log(relative residual)")
 title!("The Relative Residuals over each Iteration")
 savefig("relative_residuals.png")
 
-# Finally, plot semilog for relative errors
+# Plot semilog for relative errors
 plot() # Clear the plot
 plot!(jacobi_log_errors, label="Jacobi")
 plot!(gs_log_errors, label="Gauss-Seidel")
@@ -100,14 +102,14 @@ plot!(sor_log_errors, label="SOR")
 plot!(grad_log_errors, label="Steepest Descent")
 plot!(cg_log_errors, label="CG")
 xlabel!("Iteration k")
-ylabel!("log(error)")
+ylabel!("log(relative error)")
 title!("The Relative Errors over each Iteration")
 savefig("relative_errors.png")
 
 # Now, we want to plot cost(x) - cost(x*) over each iteration for CG and Gradient Descent
 plot() # Clear the plot
-plot!(grad_log_diff_costs, label="Steepest Descent")
-plot!(cg_log_diff_costs, label="CG")
+plot!(log.(eachindex(grad_log_diff_costs)), grad_log_diff_costs, label="Steepest Descent")
+plot!(log.(eachindex(cg_log_diff_costs)), cg_log_diff_costs, label="CG")
 xlabel!("log(iteration k)")
 ylabel!("log(cost)")
 title!("The Effect of log(Iteration) on log(Cost)")

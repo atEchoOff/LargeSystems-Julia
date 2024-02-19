@@ -1,6 +1,7 @@
 include("../LargeSystems/linear.jl")
 include("../LargeSystems/system.jl")
 include("Layered.jl")
+include("Spy.jl")
 
 function build_1D_poisson(N, a, b, f)
     # Build PDE -u''(x) = f(x)
@@ -27,7 +28,7 @@ function zero_2D(x::Float64, y::Float64)
     return 0
 end
 
-function build_2D_poisson(N, boundary, f; Δf=zero_2D, stencil=9)
+function build_2D_poisson(N, boundary, f; Δf=zero_2D, stencil=9, spy_plot=false)
     # Build the PDE Δu = f(x,y)
     # So that over ∂([0,1]²), u(x,y)=boundary(x,y)
     # Optionally pass the laplacian of f to improve convergence to O(h⁴), works only when stencil=9
@@ -47,6 +48,13 @@ function build_2D_poisson(N, boundary, f; Δf=zero_2D, stencil=9)
     for j in range(0, N + 1)
         U[0,j] = boundary(0.0, j * h)
         U[N + 1,j] = boundary(1.0, j * h)
+    end
+
+    # This is just for the homework, save a spy plot of the domain grid points
+    if spy_plot
+        spy_better(U, 0:N+1, 0:N+1)
+        title!("Spy Plot of Gridpoints")
+        savefig("Spy plot.png")
     end
 
     # Add constraints
