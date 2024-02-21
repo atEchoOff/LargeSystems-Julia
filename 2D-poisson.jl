@@ -28,7 +28,7 @@ function evaluate_2D_poisson_h4(N)
     # The only difference between evaluate 2D_poisson and evaluate_2D_poisson_h4
     # is that this one passes in the laplacian of f to the system builder
     h = 1 / (N + 1)
-    system = build_2D_poisson(N, boundary, f, Δf=Δf)
+    system = build_2D_poisson(N, boundary, f, Δf=Δf) # also pass in laplacian for O(h⁴) rates
     solver = SimpleSolver(sparse=true)
 
     solution = solve(solver, system)
@@ -39,7 +39,7 @@ function evaluate_2D_poisson_h4(N)
 end
 
 function estimateNumericalConvergence(Ns, errors)
-    # Estimate the c and n for numerical convergence, based on a vector of hs and errors
+    # Estimate the c and n for numerical convergence, based on a vector of Ns and errors
     hs = @. 1 / (1 + Ns)
     log_hs = log.(hs)
     log_errors = log.(errors)
@@ -52,16 +52,19 @@ end
 function evaluate_Ns(F::Function, Ns...)
     # Evaluate a function which takes in N, pass in a list of Ns, and estimate the numerical convergence rates
     L2_errors = Float64[]
+    println("L2 Errors:")
     for N in Ns
-        push!(L2_errors, F(N))
+        error = F(N)
+        println("N = $N\t\t L2 Error = $error")
+        push!(L2_errors, error)
     end
 
-    c, n = estimateNumericalConvergence([Ns...], L2_errors)
-    println(c," ", n)
+    _, n = estimateNumericalConvergence([Ns...], L2_errors)
+    println("Estimated order: $n")
 end
 
-print("The statistics for 2D poisson without the Laplacian trick: ")
+println("The statistics for 2D poisson without the Laplacian trick: ")
 evaluate_Ns(evaluate_2D_poisson, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100)
 
-print("The statistics for 2D poisson with the Laplacian trick: ")
+println("The statistics for 2D poisson with the Laplacian trick: ")
 evaluate_Ns(evaluate_2D_poisson_h4, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100)

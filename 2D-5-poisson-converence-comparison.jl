@@ -23,10 +23,10 @@ gauss_seidel = GaussSeidelSolver(tol_type=ZERO, maxit=N÷2, sparse=true)
 # Successive Overrelaxation solver. See above, and set omega=1.7
 sor = SuccessiveOverrelaxationSolver(tol_type=ZERO, maxit=N÷2, ω=1.7, sparse=true)
 
-# Gradient method solver. Go for infinite iterations, until the relative residual is less than 1e-15.
-gradient = GradientMethodSolver(tol_type=RELATIVE_RESIDUAL, tol=1e-15, maxit=typemax(Int64), sparse=true)
+# Gradient method solver. See above.
+gradient = GradientMethodSolver(tol_type=ZERO, maxit=N÷2, sparse=true)
 
-# Conjugate gradient method solver. See above.
+# Conjugate gradient method solver. Go until the relative residual is less that 10⁻¹⁵. 
 conjugate_gradient = ConjugateGradientMethodSolver(tol_type=RELATIVE_RESIDUAL, tol=1e-15, maxit=typemax(Int64), sparse=true)
 
 # Before continuing, find the true solution so we can get the relative errors
@@ -60,7 +60,6 @@ end
 function evaluate_solver(solver::Solver)
     # Evaluate a solver and return a list of relative residuals and relative errors (logged)
     # First, construct metadata object to store residuals and iterands
-    # Then, solve system
     metadata = ResidualMetadata()
 
     # Solve our system
@@ -89,6 +88,7 @@ plot!(gs_log_resids, label="Gauss-Seidel")
 plot!(sor_log_resids, label="SOR")
 plot!(grad_log_resids, label="Steepest Descent")
 plot!(cg_log_resids, label="CG")
+plot!(legend=:bottomright, foreground_color_legend = nothing, background_color_legend = nothing)
 xlabel!("Iteration k")
 ylabel!("log(relative residual)")
 title!("The Relative Residuals over each Iteration")
@@ -101,6 +101,7 @@ plot!(gs_log_errors, label="Gauss-Seidel")
 plot!(sor_log_errors, label="SOR")
 plot!(grad_log_errors, label="Steepest Descent")
 plot!(cg_log_errors, label="CG")
+plot!(legend=:bottomright, foreground_color_legend = nothing, background_color_legend = nothing)
 xlabel!("Iteration k")
 ylabel!("log(relative error)")
 title!("The Relative Errors over each Iteration")
@@ -110,6 +111,7 @@ savefig("relative_errors.png")
 plot() # Clear the plot
 plot!(log.(eachindex(grad_log_diff_costs)), grad_log_diff_costs, label="Steepest Descent")
 plot!(log.(eachindex(cg_log_diff_costs)), cg_log_diff_costs, label="CG")
+plot!(legend=:bottomleft)
 xlabel!("log(iteration k)")
 ylabel!("log(cost)")
 title!("The Effect of log(Iteration) on log(Cost)")

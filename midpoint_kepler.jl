@@ -35,7 +35,7 @@ function newton_step!(F::Function, y::Vector{Float64})
     y .-= jac \ Fy
 end
 
-function midpoint_step!(u::Vector{Float64}, Δt::Float64; maxit::Integer=20)
+function midpoint_step!(u::Vector{Float64}, Δt::Float64; maxit::Integer=50)
     # Given uⁿ, use Newton's method to determine uⁿ⁺¹
     # Iterate maxit times
 

@@ -1,16 +1,11 @@
 using Plots
 using LaTeXStrings
 using LinearAlgebra
-using CSV
-using DataFrames
 include("midpoint_kepler.jl")
 include("rk4_kepler.jl")
 
-# Import reference solution from matlab run
-# (From sample code)
-# It takes a while so buckle your seatbelt
-matlab_data = CSV.read("data.csv", DataFrame, header=false)
-ū = Matrix(matlab_data)' # FIXME what should I do with reference solution?
+# Reference solution
+ū = RK4(.0005)
 
 # Now, estimate the solution with RK4
 u_RK4_Δt1 = RK4(.1)
@@ -36,21 +31,23 @@ plot_solution(u_midpoint_Δt1, .1, "Midpoint")
 plot_solution(u_midpoint_Δt01, .01, "Midpoint")
 
 # Error at a specific index
-function error_func_generator(u::Matrix{Float64})
+@views function error_func_generator(u::Matrix{Float64}, Δt::Float64)
+    true_u = ū[1:Int(Δt/.0005):end,:]
     return function error(i::Integer)
-        return norm(u[i,1:2] - ū[i,1:2]) # FIXME what to do with reference solution?
+        return log(norm(u[i,1:2] - true_u[i,1:2], Inf)) # FIXME what to do with reference solution?
     end
 end
 
 function plot_errors(data, Δt, scheme_name)
     # Plot the error
-    plot(collect(0:Δt:500), log.(error_func_generator(data).(range(1, size(data, 1)))), label="Solution Error")
+    plot(collect(0:Δt:500), error_func_generator(data, Δt).(range(1, size(data, 1))), label="Solution Error")
     xaxis!("k")
     yaxis!("Error")
     title!("Error in Solution for $scheme_name with " * L"\Delta t = " * "$Δt")
     savefig("$scheme_name Solution error with Δt = $Δt.png")
 end
 
+# Plot all of our errors
 plot_errors(u_RK4_Δt1, .1, "RK4")
 plot_errors(u_RK4_Δt01, .01, "RK4")
 plot_errors(u_midpoint_Δt1, .1, "Midpoint")
