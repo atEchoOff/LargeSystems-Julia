@@ -7,7 +7,7 @@ include("Utils/ShiftedList.jl")
 
 f(x, y) = ((y - y^3)*(2pi)^2 + 6y) * cos(2pi * x) - 6y # out function f, solution to part a
 Δf(x, y) = -(2pi)^2 * ((y - y^3) * (2pi)^2 + 12y) * cos(2pi * x) # the laplacian of f
-u(x, y) = (y^3 - y) * (cos(2pi * x) - 1) # right hand side
+u(x, y) = (y^3 - y) * (cos(2pi * x) - 1) # given function
 boundary(x, y) = 0 # Our boundary value function
 
 function evaluate_2D_poisson(N)

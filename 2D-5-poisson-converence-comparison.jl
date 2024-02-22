@@ -58,19 +58,19 @@ function save!(metadata::ResidualMetadata; kwargs...)
 end
 
 function evaluate_solver(solver::Solver)
-    # Evaluate a solver and return a list of relative residuals and relative errors (logged)
+    # Evaluate a solver and return a list of relative residuals and relative errors
     # First, construct metadata object to store residuals and iterands
     metadata = ResidualMetadata()
 
     # Solve our system
     solve(solver, system, metadata=metadata)
-    return log.(metadata.relative_residuals), log.(metadata.relative_errors), log.(metadata.diff_cost)
+    return metadata.relative_residuals, metadata.relative_errors, metadata.diff_cost
 end
 
 # Get the errors for each method
-jacobi_log_resids, jacobi_log_errors, _ = evaluate_solver(jacobi)
-gs_log_resids, gs_log_errors, _ = evaluate_solver(gauss_seidel)
-sor_log_resids, sor_log_errors, _ = evaluate_solver(sor)
+jacobi_resids, jacobi_errors, _ = evaluate_solver(jacobi)
+gs_resids, gs_errors, _ = evaluate_solver(gauss_seidel)
+sor_resids, sor_errors, _ = evaluate_solver(sor)
 
 # For the descent methods, note that our matrix A is *negative definite*. So, we negate A and b to
 # solve the same system, and make -A *positive definite*. 
@@ -78,41 +78,44 @@ system.A = -system.A
 A = -A
 system.b = -system.b
 b = -b
-grad_log_resids, grad_log_errors, grad_log_diff_costs = evaluate_solver(gradient)
-cg_log_resids, cg_log_errors, cg_log_diff_costs = evaluate_solver(conjugate_gradient)
+grad_resids, grad_errors, grad_diff_costs = evaluate_solver(gradient)
+cg_resids, cg_errors, cg_diff_costs = evaluate_solver(conjugate_gradient)
 
 # Now, plot a semilog for the residuals for each method
 plot() # Clear the plot
-plot!(jacobi_log_resids, label="Jacobi")
-plot!(gs_log_resids, label="Gauss-Seidel")
-plot!(sor_log_resids, label="SOR")
-plot!(grad_log_resids, label="Steepest Descent")
-plot!(cg_log_resids, label="CG")
+plot!(jacobi_resids, label="Jacobi")
+plot!(gs_resids, label="Gauss-Seidel")
+plot!(sor_resids, label="SOR")
+plot!(grad_resids, label="Steepest Descent")
+plot!(cg_resids, label="CG")
 plot!(legend=:bottomright, foreground_color_legend = nothing, background_color_legend = nothing)
+plot!(yaxis=:log)
 xlabel!("Iteration k")
-ylabel!("log(relative residual)")
+ylabel!("relative residual")
 title!("The Relative Residuals over each Iteration")
 savefig("relative_residuals.png")
 
 # Plot semilog for relative errors
 plot() # Clear the plot
-plot!(jacobi_log_errors, label="Jacobi")
-plot!(gs_log_errors, label="Gauss-Seidel")
-plot!(sor_log_errors, label="SOR")
-plot!(grad_log_errors, label="Steepest Descent")
-plot!(cg_log_errors, label="CG")
+plot!(jacobi_errors, label="Jacobi")
+plot!(gs_errors, label="Gauss-Seidel")
+plot!(sor_errors, label="SOR")
+plot!(grad_errors, label="Steepest Descent")
+plot!(cg_errors, label="CG")
 plot!(legend=:bottomright, foreground_color_legend = nothing, background_color_legend = nothing)
+plot!(yaxis=:log)
 xlabel!("Iteration k")
-ylabel!("log(relative error)")
+ylabel!("relative error")
 title!("The Relative Errors over each Iteration")
 savefig("relative_errors.png")
 
 # Now, we want to plot cost(x) - cost(x*) over each iteration for CG and Gradient Descent
 plot() # Clear the plot
-plot!(log.(eachindex(grad_log_diff_costs)), grad_log_diff_costs, label="Steepest Descent")
-plot!(log.(eachindex(cg_log_diff_costs)), cg_log_diff_costs, label="CG")
+plot!(eachindex(grad_diff_costs), grad_diff_costs, label="Steepest Descent")
+plot!(eachindex(cg_diff_costs), cg_diff_costs, label="CG")
 plot!(legend=:bottomleft)
-xlabel!("log(iteration k)")
-ylabel!("log(cost)")
-title!("The Effect of log(Iteration) on log(Cost)")
+plot!(xaxis=:log, yaxis=:log)
+xlabel!("iteration k")
+ylabel!("cost")
+title!("The Effect of Iteration k on Cost")
 savefig("cost_difference.png")
