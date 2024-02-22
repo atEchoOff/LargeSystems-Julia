@@ -32,14 +32,6 @@ plot_solution(u_RK4_Δt01, .01, "RK4")
 plot_solution(u_midpoint_Δt1, .1, "Midpoint")
 plot_solution(u_midpoint_Δt01, .01, "Midpoint")
 
-# Error at a specific index
-@views function error_func_generator(u::Matrix{Float64}, Δt::Float64)
-    true_u = ū[1:Int(Δt/.0005):end,:]
-    return function error(i::Integer)
-        return log.(abs.(u[i,1:2] - true_u[i,1:2]))
-    end
-end
-
 function plot_errors(data, Δt, scheme_name)
     # Plot the error
 
@@ -88,7 +80,7 @@ plot_errors_smooth(u_RK4_Δt01, .01, "RK4")
 plot_errors_smooth(u_midpoint_Δt1, .1, "Midpoint")
 plot_errors_smooth(u_midpoint_Δt01, .01, "Midpoint")
 
-function hamiltonian(vec::SubArray)
+function hamiltonian(vec::Union{Matrix{Float64}, SubArray})
     # Return the hamiltonian evaluated at vector
     q1, q2, p1, p2 = vec
     r = sqrt(q1^2 + q2^2)
@@ -99,7 +91,7 @@ end
 β = .6
 H00 = hamiltonian(Float64[1 - β 0 0 sqrt((1 + β) / (1 - β))])
 
-function max_diff_hamiltonian(data::Matrix{Float64}, scheme_name::String, Δt::Float64)
+@views function max_diff_hamiltonian(data::Matrix{Float64}, scheme_name::String, Δt::Float64)
     print("$scheme_name, Δt = $Δt: ")
     println(maximum(abs.([hamiltonian(row) - H00 for row in eachrow(data)])))
 end

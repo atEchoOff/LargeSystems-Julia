@@ -56,7 +56,7 @@ function midpoint!(u::Vector{Float64}, Δt::Float64, T::Float64)
     # Apply midpoint method given initial condition u
     # given Δt timestep
     # given T final time
-    # Return Solutions over time
+    # Return matrix of iterates, return solution in u
     ret = Vector{Float64}[]
 
     for _ in 0:Δt:T
@@ -70,7 +70,7 @@ end
 function midpoint(Δt::Float64)
     # Apply midpoint given constants given from homework
     # Given Δt
-    # Return solutions over time
+    # Return matrix of iterates
     β = .6
     q1 = 1 - β
     q2 = 0.0
