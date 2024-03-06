@@ -1,14 +1,14 @@
-mutable struct Layered{U}
+mutable struct Layered{U, V}
     # A container which has a main section and an outer section
     # At construction, initialize the main part of the list
     # User can then set more values outside of the list's bounds
     # This is useful for creation of variables for system and setting boundary values outside
 
     list::Union{Vector, ShiftedList, Matrix}
-    outer::Dict{U, Number}
+    outer::Dict{U, V}
 
-    function Layered{U}(list::Union{Vector, ShiftedList, Matrix}) where {U}
-        return new{U}(list, Dict{U, Number}())
+    function Layered{U, V}(list::Union{Vector, ShiftedList, Matrix}) where {U, V}
+        return new{U, V}(list, Dict{U, V}())
     end
 end
 
@@ -20,6 +20,6 @@ Base.:(getindex)(list::Layered, idxs...) = begin
     end
 end
 
-Base.:(setindex!)(list::Layered, v::Number, idxs...) = begin
+Base.:(setindex!)(list::Layered, v::V, idxs...) where {V} = begin
     list.outer[idxs] = v
 end
