@@ -37,17 +37,17 @@ end
     linear = equation.linear
     height = size(linear.left[1], 1)
     bottom = system.determined + height
-    system.b[system.determined:bottom - 1] += equation.RHS
+    @inbounds system.b[system.determined:bottom - 1] += equation.RHS
 
     for i in 1:length(linear.left)
-        newnewA = linear.left[i]
-        newnewx = linear.right[i]
+        @inbounds newnewA = linear.left[i]
+        @inbounds newnewx = linear.right[i]
 
         for j in 1:length(newnewx)
-            var = newnewx[j]
-            var_idx = system.var_idxs[var]
+            @inbounds var = newnewx[j]
+            @inbounds var_idx = system.var_idxs[var]
 
-            system.A[system.determined:bottom - 1, var_idx] += newnewA[:, j]
+            @inbounds system.A[system.determined:bottom - 1, var_idx] += newnewA[:, j]
         end
     end
 
